@@ -1,0 +1,21 @@
+{
+  "name": "twitterbot",
+  "main": "app.coffee",
+  "version": "0.0.1",
+  "description": "Twitter bot",
+  "license" : "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/pdostal/twitterbot.git"
+  },
+  "dependencies": {
+    "moment": "2.10.6",
+    "twitter": "1.2.5"
+  },
+  "engines": {
+    "node": ">= 0.12.0"
+  },
+  "devDependencies": {
+    "coffee-script": ">= 1.3"
+  }
+}
