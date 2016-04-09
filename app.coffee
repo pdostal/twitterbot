@@ -1,11 +1,14 @@
 moment = require 'moment'
 twitter = require 'twitter'
 
+# https://apps.twitter.com/
+secret = require './secret'
+
 tw = new twitter
-  consumer_key: 'K9UJACpvOJMeGYsjPTMvxeHgW'
-  consumer_secret: 'LiJVBgjSg1uWGfT9jMt8NCaITBlResinZIwdFGk0qrabshaPkB'
-  access_token_key: '718563598008721409-lWsbzow3Ha8ay57yRRJwbFdDfhAIDu6'
-  access_token_secret: 'eqb3H2HnNN3QZiezRBZdd57ubjczwhSiRR2NZNYU4mKyf'
+  consumer_key: secret.consumer_key
+  consumer_secret: secret.consumer_secret
+  access_token_key: secret.access_token_key
+  access_token_secret: secret.access_token_secret
 
 timestamp = () ->
   moment().format 'MM. DD. YYYY hh:mm:ss '
