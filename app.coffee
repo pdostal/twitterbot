@@ -19,9 +19,10 @@ tw.stream 'statuses/filter', params, (stream) ->
     if tweet.user && tweet.user.screen_name != 'pdostalbot'
         console.log timestamp() + "@#{tweet.user.screen_name}: \"#{tweet.text}\""
 
-        params = { id: tweet.id }
-        tw.post 'favorites/create', params, (error, tweet, response) ->
-          if(error) throw error
+        params = { id: tweet.id_str }
+        tw.post 'favorites/create/', params, (error, tweet, response) ->
+          if error
+            throw error
 
   stream.on 'error', (error) ->
     throw error
