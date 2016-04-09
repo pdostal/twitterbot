@@ -26,14 +26,3 @@ tw.stream 'statuses/filter', params, (stream) ->
 
   stream.on 'error', (error) ->
     throw error
-
-# params = { status: "@#{tweet.user.screen_name} baf! To je rychlovka co?? Kdyztak odpovez \"stop\"...", in_reply_to_status_id: tweet.id }
-# tw.post 'statuses/update', params, (error, tweet, response) ->
-#   if error
-#     throw error
-#   else
-#     console.log timestamp() + "#{tweet.id} #{tweet.user.screen_name} #{tweet.text}"
-
-# tw.get 'statuses/user_timeline', screen_name: 'pdostal_en', (error, tweets, response) ->
-#   if !error
-#     console.log tweets
