@@ -1,10 +1,28 @@
 moment = require 'moment'
-twitter = require 'twitter'
+Twitter = require 'twitter'
+Sequelize = require 'sequelize'
 
 # https://apps.twitter.com/
 secret = require './secret'
 
-tw = new twitter
+sequelize = new Sequelize 'pdostalbot', 'pdostalbot', '',
+  host: '172.27.27.3'
+  dialect: 'postgres'
+  pool:
+    max: 5
+    min: 0
+    idle: 10000
+
+Administrators = sequelize.define 'administrators',
+  id: { type: Sequelize.INTEGER, primaryKey: true }
+  name: { type: Sequelize.STRING }
+
+sequelize.sync().then ->
+  console.log timestamp() + "Database synchronized"
+.catch (error) ->
+  console.log timestamp() + "Database not synchronized"
+
+tw = new Twitter
   consumer_key: secret.consumer_key
   consumer_secret: secret.consumer_secret
   access_token_key: secret.access_token_key
