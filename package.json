@@ -9,6 +9,7 @@
     "url": "git://github.com/pdostal/twitterbot.git"
   },
   "dependencies": {
+    "async": "2.0.0-rc.3",
     "moment": "2.10.6",
     "twitter": "1.2.5",
     "sequelize": "3.21.0",

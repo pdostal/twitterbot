@@ -1,3 +1,4 @@
+async = require 'async'
 moment = require 'moment'
 Twitter = require 'twitter'
 Sequelize = require 'sequelize'
@@ -55,22 +56,35 @@ send_dm = (id, message) ->
   tw.post 'direct_messages/new', params, (error, tweet, response) ->
     ifError error if error
 
+save_dm = (tweet_id, tweet_text, sender_name, sender_id) ->
+  query = {}
+  DirectMessages.findOrCreate
+    where: id: tweet_id
+    defaults:
+      sender_name: sender_name
+      sender_id: sender_id
+      text: tweet_text
+  .spread (result, created) ->
+    query.result = result
+    query.created = created
+  if query.created
+    query.result
+  else
+    false
+
 console.log timestamp() + 'App started'
 
 setInterval ->
   tw.get 'direct_messages', {}, (error, tweets, response) ->
     ifError error if error
-    for tweet, index in tweets
-      DirectMessages.findOrCreate
-        where: id: tweet.id_str
-        defaults:
-          sender_name: tweet.sender.screen_name
-          sender_id: tweet.sender.id_str
-          text: tweet.text
-      .spread (result, created) ->
-        if created
-          console.log timestamp() + "@#{result.sender_name}> \"#{result.text}\""
-          send_dm result.sender_id, "Thanks for your message"
+    if tweets
+      for tweet, index in tweets
+        async.series ->
+          result = save_dm tweet.id_str, tweet.text, tweet.sender.screen_name, tweet.sender.id_str
+          console.log result
+          if result
+            console.log timestamp() + "@#{result.sender_name}> \"#{result.text}\""
+            # send_dm result.sender_id, "Thanks for your message"
 , 15000
 
 # http://gettwitterid.com/
