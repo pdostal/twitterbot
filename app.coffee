@@ -14,34 +14,39 @@ timestamp = require('./functions/timestamp').timestamp
 ifError = require('./functions/ifError').ifError
 dm_send = require('./functions/dm_send').dm_send
 dm_save = require('./functions/dm_save').dm_save
+admin_add = require('./functions/admin_add').admin_add
 tw_fav = require('./functions/tw_fav').tw_fav
 
 console.log timestamp() + 'App started'
 
-params = { follow: '1652780346' }
-tw.stream 'statuses/filter', params, (stream) ->
-  stream.on 'data', (tweet) ->
-    if tweet.user
-      console.log timestamp() + "@#{tweet.user.screen_name}: \"#{tweet.text}\""
-      tw_fav tweet.id_str
+# params = { follow: '1652780346' }
+# tw.stream 'statuses/filter', params, (stream) ->
+#   stream.on 'data', (tweet) ->
+#     if tweet.user
+#       console.log timestamp() + "@#{tweet.user.screen_name}: \"#{tweet.text}\""
+#       tw_fav tweet.id_str
+#
+#   stream.on 'error', (error) ->
+#     throw error
 
-  stream.on 'error', (error) ->
-    throw error
+# setInterval ->
+tw.get 'direct_messages', {}, (error, tweets, response) ->
+  ifError error if error
+  if tweets
+    tweets.forEach (tweet) ->
+      mongodb.connect secret.mongourl, (err, db) ->
+        assert.equal null, err
+        collection = db.collection 'directmessages'
+        collection.findOne {id:tweet.id_str}, (err, doc) ->
+          if !doc
+            console.log timestamp() + "@#{tweet.sender.screen_name}: \"#{tweet.text}\""
 
-setInterval ->
-  tw.get 'direct_messages', {}, (error, tweets, response) ->
-    ifError error if error
-    if tweets
-      tweets.forEach (tweet) ->
-        mongodb.connect secret.mongourl, (err, db) ->
-          assert.equal null, err
-          collection = db.collection 'directmessages'
-          collection.findOne {id:tweet.id_str}, (err, doc) ->
-            if !doc
-              console.log timestamp() + "@#{tweet.sender.screen_name}: \"#{tweet.text}\""
-              dm_send tweet.sender.id_str, "Unknown command"
-              dm_save tweet
+            if /^add admin @[a-z0-9_]*$/i.test tweet.text
+              name = tweet.text.match(/^add admin @([a-z0-9_]*)$/i)
+              admin_add tweet.sender.id_str, name[1]
+            else
+              dm_send tweet.sender.id_str, "Unknown command."
 
-
-            db.close()
-, 3000
+            dm_save tweet
+          db.close()
+# , 3000
