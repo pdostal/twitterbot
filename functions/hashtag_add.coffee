@@ -5,14 +5,14 @@ dm_send = require('./dm_send').dm_send
 
 secret = require '../secret'
 
-exports.admin_del = (sender_id, name) ->
+exports.hashtag_add = (sender_id, name) ->
   mongodb.connect secret.mongourl, (err, db) ->
     assert.equal null, err
-    collection = db.collection 'admins'
+    collection = db.collection 'hashtags'
     collection.findOne {name:name}, (err, doc) ->
-      if doc
-        collection.remove { _id: doc._id }, (err, result) ->
-        dm_send sender_id, "Admin @#{name} removed."
+      if !doc
+        collection.insert { name: name }
+        dm_send sender_id, "Hashtag ##{name} added."
       else
-        dm_send sender_id, "Admin @#{name} isn't in database."
+        dm_send sender_id, "Hashtag ##{name} already exists."
       db.close()
