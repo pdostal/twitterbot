@@ -42,7 +42,10 @@ tw.get 'direct_messages', {}, (error, tweets, response) ->
           if !doc
             console.log timestamp() + "@#{tweet.sender.screen_name}: \"#{tweet.text}\""
 
-            if /^add admin @[a-z0-9_]*$/i.test tweet.text
+            if /^ping$/i.test tweet.text
+              dm_send tweet.sender.id_str, "pong"
+
+            else if /^add admin @[a-z0-9_]*$/i.test tweet.text
               name = tweet.text.match(/^add admin @([a-z0-9_]*)$/i)
               admin_add tweet.sender.id_str, name[1]
 
