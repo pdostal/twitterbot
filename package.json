@@ -1,7 +1,7 @@
 {
   "name": "twitterbot",
   "main": "app.coffee",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "Twitter bot",
   "license" : "MIT",
   "repository": {
@@ -9,6 +9,8 @@
     "url": "git://github.com/pdostal/twitterbot.git"
   },
   "dependencies": {
+    "better-require": "0.0.3",
+    "async": "2.0.0-rc.5",
     "moment": "2.10.6",
     "twitter": "1.2.5",
     "mongodb": "2.1.18",
