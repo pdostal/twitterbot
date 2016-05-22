@@ -15,6 +15,7 @@ ifError = require('./functions/ifError').ifError
 dm_send = require('./functions/dm_send').dm_send
 dm_save = require('./functions/dm_save').dm_save
 admin_add = require('./functions/admin_add').admin_add
+admin_del = require('./functions/admin_del').admin_del
 tw_fav = require('./functions/tw_fav').tw_fav
 
 console.log timestamp() + 'App started'
@@ -44,6 +45,11 @@ tw.get 'direct_messages', {}, (error, tweets, response) ->
             if /^add admin @[a-z0-9_]*$/i.test tweet.text
               name = tweet.text.match(/^add admin @([a-z0-9_]*)$/i)
               admin_add tweet.sender.id_str, name[1]
+
+            else if /^del admin @[a-z0-9_]*$/i.test tweet.text
+              name = tweet.text.match(/^del admin @([a-z0-9_]*)$/i)
+              admin_del tweet.sender.id_str, name[1]
+
             else
               dm_send tweet.sender.id_str, "Unknown command."
 
