@@ -29,31 +29,31 @@ hashtag_retweet = require('./functions/hashtag_retweet').hashtag_retweet
 
 console.log timestamp() + 'App started'
 
-# setInterval ->
-#   mongodb.connect secret.mongourl, (err, db) ->
-#     assert.equal null, err
-#     collection = db.collection 'hashtags'
-#     collection.find({}).toArray (err, doc) ->
-#       if doc
-#         doc.forEach (hashtag) ->
-#           params = { q: "##{hashtag.name}", result_type: "recent", count: 20 }
-#           tw.get 'search/tweets', params, (error, tweets, response) ->
-#             ifError error if error
-#
-#             if tweets.statuses.length >= 1
-#               tweets.statuses.forEach (tweet) ->
-#                 mongodb.connect secret.mongourl, (err, db) ->
-#                   assert.equal null, err
-#                   collection = db.collection 'tweets'
-#                   collection.findOne {id:tweet.id_str}, (err, doc) ->
-#                     if !doc
-#                       console.log timestamp() + "@#{tweet.user.screen_name}: \"#{tweet.text}\""
-#
-#                       hashtag_retweet tweet
-#
-#                       tw_save tweet
-#                     db.close()
-# , 15000
+setInterval ->
+  mongodb.connect secret.mongourl, (err, db) ->
+    assert.equal null, err
+    collection = db.collection 'hashtags'
+    collection.find({}).toArray (err, doc) ->
+      if doc
+        doc.forEach (hashtag) ->
+          params = { q: "##{hashtag.name}", result_type: "recent", count: 20 }
+          tw.get 'search/tweets', params, (error, tweets, response) ->
+            ifError error if error
+
+            if tweets.statuses.length >= 1
+              tweets.statuses.forEach (tweet) ->
+                mongodb.connect secret.mongourl, (err, db) ->
+                  assert.equal null, err
+                  collection = db.collection 'tweets'
+                  collection.findOne {id:tweet.id_str}, (err, doc) ->
+                    if !doc
+                      console.log timestamp() + "@#{tweet.user.screen_name}: \"#{tweet.text}\""
+
+                      hashtag_retweet tweet
+
+                      tw_save tweet
+                    db.close()
+, 60000
 
 setInterval ->
   tw.get 'direct_messages', {}, (error, tweets, response) ->
@@ -65,7 +65,7 @@ setInterval ->
           mongodb.connect secret.mongourl, (err2, db2) ->
             assert.equal null, err2
             collection1 = db1.collection 'admins'
-            collection2 = db2.collection 'directmessages'
+            collection2 = db2.collection 'messages'
             collection1.findOne {name:tweet.sender.screen_name}, (err1, doc1) ->
               if doc1
                 collection2.findOne {id:tweet.id_str}, (err2, doc2) ->
@@ -119,4 +119,4 @@ setInterval ->
                   db2.close()
               dm_save tweet
               db1.close()
-, 3000
+, 30000

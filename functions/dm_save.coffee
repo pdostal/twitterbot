@@ -6,7 +6,7 @@ secret = require '../secret'
 exports.dm_save = (tweet) ->
   mongodb.connect secret.mongourl, (err, db) ->
     assert.equal null, err
-    collection = db.collection 'directmessages'
+    collection = db.collection 'messages'
     data =
       id: tweet.id_str, text: tweet.text,
       sender_name: tweet.sender.screen_name, sender_id: tweet.sender.id_str
