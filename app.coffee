@@ -20,6 +20,8 @@ hashtag_add = require('./functions/hashtag_add').hashtag_add
 hashtag_del = require('./functions/hashtag_del').hashtag_del
 user_add = require('./functions/user_add').user_add
 user_del = require('./functions/user_del').user_del
+ban_add = require('./functions/ban_add').ban_add
+ban_del = require('./functions/ban_del').ban_del
 tw_save = require('./functions/tw_save').tw_save
 tw_fav = require('./functions/tw_fav').tw_fav
 tw_rt = require('./functions/tw_rt').tw_rt
@@ -97,6 +99,14 @@ setInterval ->
                       name = tweet.text.match(/^del user @([a-z0-9_]*)$/i)
                       user_del tweet.sender.id_str, name[1]
 
+                    else if /^add ban @[a-z0-9_]*$/i.test tweet.text
+                      name = tweet.text.match(/^add ban @([a-z0-9_]*)$/i)
+                      ban_add tweet.sender.id_str, name[1]
+
+                    else if /^del ban @[a-z0-9_]*$/i.test tweet.text
+                      name = tweet.text.match(/^del ban @([a-z0-9_]*)$/i)
+                      ban_del tweet.sender.id_str, name[1]
+
                     else
                       dm_send tweet.sender.id_str, "Unknown command."
                   db2.close()
@@ -109,4 +119,4 @@ setInterval ->
                   db2.close()
               dm_save tweet
               db1.close()
-, 15000
+, 3000
