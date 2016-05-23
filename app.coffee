@@ -37,7 +37,7 @@ console.log timestamp() + 'App started'
 #           params = { q: "##{hashtag.name}", result_type: "recent", count: 20 }
 #           tw.get 'search/tweets', params, (error, tweets, response) ->
 #             ifError error if error
-# 
+#
 #             if tweets.statuses.length >= 1
 #               tweets.statuses.forEach (tweet) ->
 #                 mongodb.connect secret.mongourl, (err, db) ->
@@ -53,48 +53,60 @@ console.log timestamp() + 'App started'
 #                     db.close()
 # , 15000
 
-# setInterval ->
-#   tw.get 'direct_messages', {}, (error, tweets, response) ->
-#     ifError error if error
-#     if tweets
-#       tweets.forEach (tweet) ->
-#         mongodb.connect secret.mongourl, (err, db) ->
-#           assert.equal null, err
-#           collection = db.collection 'directmessages'
-#           collection.findOne {id:tweet.id_str}, (err, doc) ->
-#             if !doc
-#               console.log timestamp() + "@#{tweet.sender.screen_name}: \"#{tweet.text}\""
-#
-#               if /^ping$/i.test tweet.text
-#                 dm_send tweet.sender.id_str, "pong"
-#
-#               else if /^add admin @[a-z0-9_]*$/i.test tweet.text
-#                 name = tweet.text.match(/^add admin @([a-z0-9_]*)$/i)
-#                 admin_add tweet.sender.id_str, name[1]
-#
-#               else if /^del admin @[a-z0-9_]*$/i.test tweet.text
-#                 name = tweet.text.match(/^del admin @([a-z0-9_]*)$/i)
-#                 admin_del tweet.sender.id_str, name[1]
-#
-#               else if /^add hashtag #[a-z0-9_]*$/i.test tweet.text
-#                 name = tweet.text.match(/^add hashtag #([a-z0-9_]*)$/i)
-#                 hashtag_add tweet.sender.id_str, name[1]
-#
-#               else if /^del hashtag #[a-z0-9_]*$/i.test tweet.text
-#                 name = tweet.text.match(/^del hashtag #([a-z0-9_]*)$/i)
-#                 hashtag_del tweet.sender.id_str, name[1]
-#
-#               else if /^add user @[a-z0-9_]*$/i.test tweet.text
-#                 name = tweet.text.match(/^add user @([a-z0-9_]*)$/i)
-#                 user_add tweet.sender.id_str, name[1]
-#
-#               else if /^del user @[a-z0-9_]*$/i.test tweet.text
-#                 name = tweet.text.match(/^del user @([a-z0-9_]*)$/i)
-#                 user_del tweet.sender.id_str, name[1]
-#
-#               else
-#                 dm_send tweet.sender.id_str, "Unknown command."
-#
-#               dm_save tweet
-#             db.close()
-# , 15000
+setInterval ->
+  tw.get 'direct_messages', {}, (error, tweets, response) ->
+    ifError error if error
+    if tweets
+      tweets.forEach (tweet) ->
+        mongodb.connect secret.mongourl, (err1, db1) ->
+          assert.equal null, err1
+          mongodb.connect secret.mongourl, (err2, db2) ->
+            assert.equal null, err2
+            collection1 = db1.collection 'admins'
+            collection2 = db2.collection 'directmessages'
+            collection1.findOne {name:tweet.sender.screen_name}, (err1, doc1) ->
+              if doc1
+                collection2.findOne {id:tweet.id_str}, (err2, doc2) ->
+                  if !doc2
+                    console.log timestamp() + "@#{tweet.sender.screen_name}: \"#{tweet.text}\""
+
+                    if /^ping$/i.test tweet.text
+                      dm_send tweet.sender.id_str, "pong"
+
+                    else if /^add admin @[a-z0-9_]*$/i.test tweet.text
+                      name = tweet.text.match(/^add admin @([a-z0-9_]*)$/i)
+                      admin_add tweet.sender.id_str, name[1]
+
+                    else if /^del admin @[a-z0-9_]*$/i.test tweet.text
+                      name = tweet.text.match(/^del admin @([a-z0-9_]*)$/i)
+                      admin_del tweet.sender.id_str, name[1]
+
+                    else if /^add hashtag #[a-z0-9_]*$/i.test tweet.text
+                      name = tweet.text.match(/^add hashtag #([a-z0-9_]*)$/i)
+                      hashtag_add tweet.sender.id_str, name[1]
+
+                    else if /^del hashtag #[a-z0-9_]*$/i.test tweet.text
+                      name = tweet.text.match(/^del hashtag #([a-z0-9_]*)$/i)
+                      hashtag_del tweet.sender.id_str, name[1]
+
+                    else if /^add user @[a-z0-9_]*$/i.test tweet.text
+                      name = tweet.text.match(/^add user @([a-z0-9_]*)$/i)
+                      user_add tweet.sender.id_str, name[1]
+
+                    else if /^del user @[a-z0-9_]*$/i.test tweet.text
+                      name = tweet.text.match(/^del user @([a-z0-9_]*)$/i)
+                      user_del tweet.sender.id_str, name[1]
+
+                    else
+                      dm_send tweet.sender.id_str, "Unknown command."
+                  db2.close()
+              else
+                collection2.findOne {id:tweet.id_str}, (err2, doc2) ->
+                  if !doc2
+                    console.log timestamp() + "@#{tweet.sender.screen_name}; \"#{tweet.text}\""
+
+                    dm_send tweet.sender.id_str, "You're not administrator."
+                  db2.close()
+              dm_save tweet
+              db1.close()
+, 15000

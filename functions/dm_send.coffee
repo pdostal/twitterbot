@@ -1,6 +1,8 @@
 timestamp = require('./timestamp').timestamp
 twitter = require 'twitter'
 
+ifError = require('./ifError').ifError
+
 secret = require '../secret'
 tw = new twitter
   consumer_key: secret.consumer_key
