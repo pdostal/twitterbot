@@ -20,21 +20,38 @@ hashtag_add = require('./functions/hashtag_add').hashtag_add
 hashtag_del = require('./functions/hashtag_del').hashtag_del
 user_add = require('./functions/user_add').user_add
 user_del = require('./functions/user_del').user_del
+tw_save = require('./functions/tw_save').tw_save
 tw_fav = require('./functions/tw_fav').tw_fav
 tw_rt = require('./functions/tw_rt').tw_rt
 hashtag_retweet = require('./functions/hashtag_retweet').hashtag_retweet
 
 console.log timestamp() + 'App started'
-params = { follow: '1652780346' }
-tw.stream 'statuses/filter', params, (stream) ->
-  stream.on 'data', (tweet) ->
-    if tweet.user
-      console.log timestamp() + "@#{tweet.user.screen_name}: \"#{tweet.text}\""
 
-      hashtag_retweet tweet
-
-  stream.on 'error', (error) ->
-    throw error
+# setInterval ->
+#   mongodb.connect secret.mongourl, (err, db) ->
+#     assert.equal null, err
+#     collection = db.collection 'hashtags'
+#     collection.find({}).toArray (err, doc) ->
+#       if doc
+#         doc.forEach (hashtag) ->
+#           params = { q: "##{hashtag.name}", result_type: "recent", count: 20 }
+#           tw.get 'search/tweets', params, (error, tweets, response) ->
+#             ifError error if error
+# 
+#             if tweets.statuses.length >= 1
+#               tweets.statuses.forEach (tweet) ->
+#                 mongodb.connect secret.mongourl, (err, db) ->
+#                   assert.equal null, err
+#                   collection = db.collection 'tweets'
+#                   collection.findOne {id:tweet.id_str}, (err, doc) ->
+#                     if !doc
+#                       console.log timestamp() + "@#{tweet.user.screen_name}: \"#{tweet.text}\""
+#
+#                       hashtag_retweet tweet
+#
+#                       tw_save tweet
+#                     db.close()
+# , 15000
 
 # setInterval ->
 #   tw.get 'direct_messages', {}, (error, tweets, response) ->
@@ -80,4 +97,4 @@ tw.stream 'statuses/filter', params, (stream) ->
 #
 #               dm_save tweet
 #             db.close()
-# , 3000
+# , 15000
